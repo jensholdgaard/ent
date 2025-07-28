@@ -44,9 +44,9 @@ func (p Config) node(t *gen.Type) {
 	var (
 		b      strings.Builder
 		id     []*gen.Field
+		table  = tablewriter.NewWriter(&b)
 		header = []string{"Field", "Type", "Unique", "Optional", "Nillable", "Default", "UpdateDefault", "Immutable", "StructTag", "Validators", "Comment"}
 	)
-	table := tablewriter.NewWriter(&b)
 	b.WriteString(t.Name + ":\n")
 	table.Options(
 		tablewriter.WithHeaderConfig(tw.CellConfig{
@@ -86,10 +86,7 @@ func (p Config) node(t *gen.Type) {
 			}
 		}
 		row[len(row)-1] = f.Comment()
-		err := table.Append(row)
-		if err != nil {
-			return
-		}
+		_ = table.Append(row)
 		table.Options(
 			tablewriter.WithRowAlignmentConfig(
 				tw.CellAlignment{PerColumn: alignment},
@@ -100,7 +97,6 @@ func (p Config) node(t *gen.Type) {
 	if err != nil {
 		return
 	}
-
 	// Create new table for edges
 	table = tablewriter.NewWriter(&b)
 	table.Options(
@@ -117,9 +113,7 @@ func (p Config) node(t *gen.Type) {
 			Symbols: tw.NewSymbols(tw.StyleASCII),
 		}),
 	)
-
 	table.Header([]string{"Edge", "Type", "Inverse", "BackRef", "Relation", "Unique", "Optional", "Comment"})
-
 	hasEdges := false
 	for _, e := range t.Edges {
 		hasEdges = true
@@ -137,7 +131,6 @@ func (p Config) node(t *gen.Type) {
 			return
 		}
 	}
-
 	if hasEdges {
 		err := table.Render()
 		if err != nil {
